@@ -25,32 +25,104 @@ public class URLConverterService {
 
     }
 
-    public String shortenURL(String localURL, String longUrl, Date expiryDate) {
+    public String shortenURL(String longUrl, Date expiryDate) {
         LOGGER.info("Shortening {}", longUrl);
 
-        List<UnusedShortUrl> unusedShortUrls =unusedUrlDAO.getRandomUnsedShortUrl();
-        UsedUrl usedUrl= new UsedUrl();
+        List<UnusedShortUrl> unusedShortUrls = unusedUrlDAO.getRandomUnsedShortUrl();
+        UsedUrl usedUrl = new UsedUrl();
         usedUrl.setExpiryDate(expiryDate);
         usedUrl.setHits(1);
         usedUrl.setShortUrl(unusedShortUrls.get(0).getUnusedUrl());
         usedUrl.setLongUrl(longUrl);
+        usedUrl.setCustom(false);
         usedUrlDao.insertUsedUrl(usedUrl);
         unusedUrlDAO.deleteUnusedUrl(unusedShortUrls.get(0));
         return unusedShortUrls.get(0).getUnusedUrl();
     }
 
+    public String shortenCustomURL(String longUrl, Date expiryDate, String customUrl) {
+        LOGGER.info("Shortening {}", longUrl);
+
+        UsedUrl usedUrl = new UsedUrl();
+        usedUrl.setExpiryDate(expiryDate);
+        usedUrl.setHits(1);
+        usedUrl.setShortUrl(customUrl);
+        usedUrl.setLongUrl(longUrl);
+        usedUrl.setCustom(false);
+        usedUrlDao.insertUsedUrl(usedUrl);
+        return customUrl;
+    }
+
     public String getLongURLFromID(String uniqueID) throws Exception {
         UsedUrl usedUrl = new UsedUrl();
-        usedUrl.setShortUrl("tiny/"+uniqueID);
-        List<UsedUrl> usedUrlList= usedUrlDao.getUsedUrlByShortUrl(usedUrl);
-        if(usedUrlList.size() == 0)
-        {
+        usedUrl.setShortUrl("tiny/" + uniqueID);
+        List<UsedUrl> usedUrlList = usedUrlDao.getUsedUrlByShortUrl(usedUrl);
+        if (usedUrlList.size() == 0) {
             throw new Exception("No urls for this short url");
         }
         usedUrlDao.updateHitOfUsedUrl(usedUrlList.get(0));
 
         LOGGER.info("Converting shortened URL back to {}", usedUrlList.get(0));
         return usedUrlList.get(0).getLongUrl();
+    }
+
+    public String getCustomLongURL (String url) throws Exception {
+        final String[] longUrl = new String[1];
+        List<UsedUrl> usedUrlList= usedUrlDao.getAllCustomUrls();
+        usedUrlList.forEach(usedUrl -> {
+            if(getMatchingUrl(usedUrl,url))
+            {
+                 longUrl[0] =generateLongUrl(url,usedUrl);
+            }
+        });
+        if(longUrl[0]==null)
+            throw new Exception("No matching found");
+        return longUrl[0];
+    }
+
+    public Boolean getMatchingUrl(UsedUrl usedUrl, String receivedUrl){
+
+        String [] usedUrlArray =  usedUrl.getShortUrl().split("/");
+        String [] urlArray = receivedUrl.split("/");
+        if(urlArray.length != usedUrlArray.length)
+            return false;
+        for(int i =0;i<usedUrlArray.length;i++){
+            if(!usedUrlArray[i].matches("<>"))
+            {
+                if(!usedUrlArray[i].matches(urlArray[i]))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public String[] getVariablesFromRecievedUrl(UsedUrl usedUrl, String receivedUrl){
+        String [] usedUrlArray =  usedUrl.getShortUrl().split("/");
+        String [] urlArray = receivedUrl.split("/");
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i =0;i<usedUrlArray.length;i++){
+            if(usedUrlArray[i].matches("<>"))
+            {
+                stringBuilder.append(urlArray[i]);
+            }
+        }
+        return stringBuilder.toString().split(" ");
+    }
+
+    public String generateLongUrl(String receivedUrl,UsedUrl usedUrl){
+        String longUrl=usedUrl.getLongUrl();
+        String[] variables = getVariablesFromRecievedUrl(usedUrl,receivedUrl);
+        StringBuilder stringBuilder = new StringBuilder(longUrl);
+
+        int lastIndex=0;
+        for(int i =0;i<variables.length;i++){
+            int nextindex=  stringBuilder.indexOf("<>",lastIndex);
+            stringBuilder.deleteCharAt(nextindex);
+            stringBuilder.deleteCharAt(nextindex);
+            stringBuilder.insert(nextindex,variables[0]);
+            lastIndex= nextindex+1;
+        }
+        return stringBuilder.toString();
     }
 
 }

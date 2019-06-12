@@ -18,6 +18,7 @@ public class UsedUrlRowMapper implements RowMapper<UsedUrl> {
         usedUrl.setHits(rs.getInt("hits"));
         usedUrl.setExpiryDate(rs.getDate("expiry_date"));
         usedUrl.setCreatedAt(rs.getDate("created_on"));
+        usedUrl.setCustom(rs.getBoolean("iscustom"));
         return usedUrl;
     }
 }

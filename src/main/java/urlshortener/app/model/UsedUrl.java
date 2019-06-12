@@ -7,6 +7,15 @@ public class UsedUrl {
     private String shortUrl;
     private Date createdAt;
     private Integer hits;
+    private Boolean isCustom;
+
+    public Boolean getCustom() {
+        return isCustom;
+    }
+
+    public void setCustom(Boolean custom) {
+        isCustom = custom;
+    }
 
     public Integer getId() {
         return id;

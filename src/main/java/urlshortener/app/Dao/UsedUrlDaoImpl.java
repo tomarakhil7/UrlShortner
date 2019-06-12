@@ -31,13 +31,15 @@ public class UsedUrlDaoImpl implements UserUrlDAO {
 
     @Override
     public void insertUsedUrl(UsedUrl usedUrl) {
-        final String sql = "insert into used_url(long_url, short_url ,expiry_date,hits) values(:long_url,:short_url,:expiry_date,:hits)";
+        final String sql = "insert into used_url(long_url, short_url ,expiry_date,hits,iscustom) values(:long_url,:short_url,:expiry_date,:hits,:iscustom)";
         KeyHolder holder = new GeneratedKeyHolder();
         SqlParameterSource param = new MapSqlParameterSource()
                 .addValue("long_url", usedUrl.getLongUrl())
                 .addValue("short_url", usedUrl.getShortUrl())
                 .addValue("expiry_date", usedUrl.getExpiryDate())
-                .addValue("hits", usedUrl.getHits());
+                .addValue("hits", usedUrl.getHits())
+                .addValue("iscustom",usedUrl.getCustom());
+
         template.update(sql, param, holder);
     }
 
@@ -78,7 +80,13 @@ public class UsedUrlDaoImpl implements UserUrlDAO {
     }
 
     public List<UsedUrl> getAllExpiredUsedIUrl() {
-        final String sql = "select * from used_url where expiry_date < now()";
+        final String sql = "select * from used_url where expiry_date < now() and iscustom = false";
+        return template.query(sql, new UsedUrlRowMapper());
+
+    }
+
+    public List<UsedUrl> getAllCustomUrls() {
+        final String sql = "select * from used_url where expiry_date > now() and iscustom = true";
         return template.query(sql, new UsedUrlRowMapper());
 
     }

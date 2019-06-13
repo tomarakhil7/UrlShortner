@@ -69,7 +69,10 @@ public class URLConverterService {
     public String getCustomLongURL (String url) throws Exception {
         final String[] longUrl = new String[1];
         List<UsedUrl> usedUrlList= usedUrlDao.getAllCustomUrls();
+        LOGGER.info("usedUrl: "+usedUrlList.size());
+
         usedUrlList.forEach(usedUrl -> {
+            LOGGER.debug("usedUrl: "+usedUrl.getShortUrl());
             if(getMatchingUrl(usedUrl,url))
             {
                  longUrl[0] =generateLongUrl(url,usedUrl);
@@ -84,6 +87,10 @@ public class URLConverterService {
 
         String [] usedUrlArray =  usedUrl.getShortUrl().split("/");
         String [] urlArray = receivedUrl.split("/");
+        LOGGER.info("Array for urlArray :"+ urlArray.toString());
+        LOGGER.info("Array for usedUrlArray :"+ usedUrlArray.toString());
+
+
         if(urlArray.length != usedUrlArray.length)
             return false;
         for(int i =0;i<usedUrlArray.length;i++){
@@ -103,9 +110,11 @@ public class URLConverterService {
         for(int i =0;i<usedUrlArray.length;i++){
             if(usedUrlArray[i].matches("<>"))
             {
-                stringBuilder.append(urlArray[i]);
+                stringBuilder.append(" "+urlArray[i]);
             }
         }
+        LOGGER.info("generate long url: "+ stringBuilder.deleteCharAt(0));
+
         return stringBuilder.toString().split(" ");
     }
 
@@ -113,14 +122,17 @@ public class URLConverterService {
         String longUrl=usedUrl.getLongUrl();
         String[] variables = getVariablesFromRecievedUrl(usedUrl,receivedUrl);
         StringBuilder stringBuilder = new StringBuilder(longUrl);
+        LOGGER.info("variable length :" + variables.length);
 
         int lastIndex=0;
         for(int i =0;i<variables.length;i++){
             int nextindex=  stringBuilder.indexOf("<>",lastIndex);
             stringBuilder.deleteCharAt(nextindex);
             stringBuilder.deleteCharAt(nextindex);
-            stringBuilder.insert(nextindex,variables[0]);
-            lastIndex= nextindex+1;
+            stringBuilder.insert(nextindex,variables[i]);
+            lastIndex= nextindex;
+
+            LOGGER.info("generate long url: "+ stringBuilder + " "+lastIndex);
         }
         return stringBuilder.toString();
     }

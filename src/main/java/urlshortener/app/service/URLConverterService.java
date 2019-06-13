@@ -10,7 +10,9 @@ import urlshortener.app.model.UnusedShortUrl;
 import urlshortener.app.model.UsedUrl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class URLConverterService {
@@ -48,7 +50,7 @@ public class URLConverterService {
         usedUrl.setHits(1);
         usedUrl.setShortUrl(customUrl);
         usedUrl.setLongUrl(longUrl);
-        usedUrl.setCustom(false);
+        usedUrl.setCustom(true);
         usedUrlDao.insertUsedUrl(usedUrl);
         return customUrl;
     }
@@ -94,7 +96,8 @@ public class URLConverterService {
         if(urlArray.length != usedUrlArray.length)
             return false;
         for(int i =0;i<usedUrlArray.length;i++){
-            if(!usedUrlArray[i].matches("<>"))
+            LOGGER.info("used url array :"+usedUrlArray[i]+ " urlArray :"+ urlArray[i]);
+            if(!usedUrlArray[i].matches("(<[^>]*>)"))
             {
                 if(!usedUrlArray[i].matches(urlArray[i]))
                     return false;
@@ -103,38 +106,35 @@ public class URLConverterService {
         return true;
     }
 
-    public String[] getVariablesFromRecievedUrl(UsedUrl usedUrl, String receivedUrl){
+    public Map<String,String > getVariablesFromRecievedUrl(UsedUrl usedUrl, String receivedUrl){
+
+        Map<String,String> variableMap = new HashMap<>();
+
         String [] usedUrlArray =  usedUrl.getShortUrl().split("/");
         String [] urlArray = receivedUrl.split("/");
-        StringBuilder stringBuilder = new StringBuilder();
         for(int i =0;i<usedUrlArray.length;i++){
-            if(usedUrlArray[i].matches("<>"))
+            if(usedUrlArray[i].matches("(<[^>]*>)"))
             {
-                stringBuilder.append(" "+urlArray[i]);
+                variableMap.put(usedUrlArray[i],urlArray[i]);
             }
         }
-        LOGGER.info("generate long url: "+ stringBuilder.deleteCharAt(0));
 
-        return stringBuilder.toString().split(" ");
+        return variableMap;
     }
 
     public String generateLongUrl(String receivedUrl,UsedUrl usedUrl){
         String longUrl=usedUrl.getLongUrl();
-        String[] variables = getVariablesFromRecievedUrl(usedUrl,receivedUrl);
-        StringBuilder stringBuilder = new StringBuilder(longUrl);
-        LOGGER.info("variable length :" + variables.length);
+        Map<String,String> variableMap  = getVariablesFromRecievedUrl(usedUrl,receivedUrl);
+        LOGGER.info("variable length :" + variableMap.size());
+        String newUrl=longUrl;
 
-        int lastIndex=0;
-        for(int i =0;i<variables.length;i++){
-            int nextindex=  stringBuilder.indexOf("<>",lastIndex);
-            stringBuilder.deleteCharAt(nextindex);
-            stringBuilder.deleteCharAt(nextindex);
-            stringBuilder.insert(nextindex,variables[i]);
-            lastIndex= nextindex;
-
-            LOGGER.info("generate long url: "+ stringBuilder + " "+lastIndex);
+        for (Map.Entry<String,String> entry : variableMap.entrySet())
+        {
+            LOGGER.info(entry.getKey() +" "+entry.getValue());
+             newUrl = newUrl.replace(entry.getKey(),entry.getValue());
         }
-        return stringBuilder.toString();
+        LOGGER.info("generate long url: "+ longUrl);
+        return newUrl;
     }
 
     public Integer getHits(String url) {

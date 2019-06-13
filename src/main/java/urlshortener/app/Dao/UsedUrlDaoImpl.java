@@ -88,6 +88,12 @@ public class UsedUrlDaoImpl implements UserUrlDAO {
     public List<UsedUrl> getAllCustomUrls() {
         final String sql = "select * from used_url where expiry_date > now() and iscustom = true";
         return template.query(sql, new UsedUrlRowMapper());
+    }
 
+    public List<UsedUrl> getHits(String shortUrl) {
+        final String sql = "select * from used_url where expiry_date > now() and short_url=:short_url";
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("short_url", shortUrl);
+        return template.query(sql,param, new UsedUrlRowMapper());
     }
 }

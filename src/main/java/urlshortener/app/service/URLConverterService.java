@@ -137,4 +137,7 @@ public class URLConverterService {
         return stringBuilder.toString();
     }
 
+    public Integer getHits(String url) {
+        return usedUrlDao.getHits(url).get(0).getHits();
+    }
 }

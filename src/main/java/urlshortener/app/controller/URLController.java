@@ -72,6 +72,13 @@ public class URLController {
         redirectView.setUrl("http://" + redirectUrlString);
         return redirectView;
     }
+
+    @RequestMapping(value = "/analysis", method = RequestMethod.POST)
+    public Integer analyseUrl(@RequestBody @Valid final RedirectUrl redirectUrl,HttpServletRequest request) throws Exception {
+        LOGGER.info("Received url to analyse: "+ redirectUrl.getUrl());
+        Integer hits= urlConverterService.getHits(redirectUrl.getUrl());
+        return hits;
+    }
 }
 
 class ShortenRequest {

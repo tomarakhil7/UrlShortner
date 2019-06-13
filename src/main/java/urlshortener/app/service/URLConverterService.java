@@ -55,7 +55,7 @@ public class URLConverterService {
 
     public String getLongURLFromID(String uniqueID) throws Exception {
         UsedUrl usedUrl = new UsedUrl();
-        usedUrl.setShortUrl("tiny/" + uniqueID);
+        usedUrl.setShortUrl( uniqueID);
         List<UsedUrl> usedUrlList = usedUrlDao.getUsedUrlByShortUrl(usedUrl);
         if (usedUrlList.size() == 0) {
             throw new Exception("No urls for this short url");

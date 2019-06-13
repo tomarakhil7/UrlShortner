@@ -57,7 +57,7 @@ public class URLConverterService {
 
     public String getLongURLFromID(String uniqueID) throws Exception {
         UsedUrl usedUrl = new UsedUrl();
-        usedUrl.setShortUrl( uniqueID);
+        usedUrl.setShortUrl(uniqueID);
         List<UsedUrl> usedUrlList = usedUrlDao.getUsedUrlByShortUrl(usedUrl);
         if (usedUrlList.size() == 0) {
             throw new Exception("No urls for this short url");
@@ -68,76 +68,76 @@ public class URLConverterService {
         return usedUrlList.get(0).getLongUrl();
     }
 
-    public String getCustomLongURL (String url) throws Exception {
+    public String getCustomLongURL(String url) throws Exception {
         final String[] longUrl = new String[1];
-        List<UsedUrl> usedUrlList= usedUrlDao.getAllCustomUrls();
-        LOGGER.info("usedUrl: "+usedUrlList.size());
+        List<UsedUrl> usedUrlList = usedUrlDao.getAllCustomUrls();
+        LOGGER.info("usedUrl: " + usedUrlList.size());
 
         usedUrlList.forEach(usedUrl -> {
-            LOGGER.debug("usedUrl: "+usedUrl.getShortUrl());
-            if(getMatchingUrl(usedUrl,url))
-            {
-                 longUrl[0] =generateLongUrl(url,usedUrl);
+            LOGGER.debug("usedUrl: " + usedUrl.getShortUrl());
+            if (getMatchingUrl(usedUrl, url)) {
+                longUrl[0] = generateLongUrl(url, usedUrl);
             }
         });
-        if(longUrl[0]==null)
+        if (longUrl[0] == null)
             throw new Exception("No matching found");
         return longUrl[0];
     }
 
-    public Boolean getMatchingUrl(UsedUrl usedUrl, String receivedUrl){
+    public Boolean getMatchingUrl(UsedUrl usedUrl, String receivedUrl) {
 
-        String [] usedUrlArray =  usedUrl.getShortUrl().split("/");
-        String [] urlArray = receivedUrl.split("/");
-        LOGGER.info("Array for urlArray :"+ urlArray.toString());
-        LOGGER.info("Array for usedUrlArray :"+ usedUrlArray.toString());
+        String[] usedUrlArray = usedUrl.getShortUrl().split("/");
+        String[] urlArray = receivedUrl.split("/");
+        LOGGER.info("Array for urlArray :" + urlArray.toString());
+        LOGGER.info("Array for usedUrlArray :" + usedUrlArray.toString());
 
 
-        if(urlArray.length != usedUrlArray.length)
+        if (urlArray.length != usedUrlArray.length)
             return false;
-        for(int i =0;i<usedUrlArray.length;i++){
-            LOGGER.info("used url array :"+usedUrlArray[i]+ " urlArray :"+ urlArray[i]);
-            if(!usedUrlArray[i].matches("(<[^>]*>)"))
-            {
-                if(!usedUrlArray[i].matches(urlArray[i]))
+        for (int i = 0; i < usedUrlArray.length; i++) {
+            LOGGER.info("used url array :" + usedUrlArray[i] + " urlArray :" + urlArray[i]);
+            if (!usedUrlArray[i].matches("(<[^>]*>)")) {
+                if (!usedUrlArray[i].matches(urlArray[i]))
                     return false;
             }
         }
         return true;
     }
 
-    public Map<String,String > getVariablesFromRecievedUrl(UsedUrl usedUrl, String receivedUrl){
+    public Map<String, String> getVariablesFromRecievedUrl(UsedUrl usedUrl, String receivedUrl) {
 
-        Map<String,String> variableMap = new HashMap<>();
+        Map<String, String> variableMap = new HashMap<>();
 
-        String [] usedUrlArray =  usedUrl.getShortUrl().split("/");
-        String [] urlArray = receivedUrl.split("/");
-        for(int i =0;i<usedUrlArray.length;i++){
-            if(usedUrlArray[i].matches("(<[^>]*>)"))
-            {
-                variableMap.put(usedUrlArray[i],urlArray[i]);
+        String[] usedUrlArray = usedUrl.getShortUrl().split("/");
+        String[] urlArray = receivedUrl.split("/");
+        for (int i = 0; i < usedUrlArray.length; i++) {
+            if (usedUrlArray[i].matches("(<[^>]*>)")) {
+                variableMap.put(usedUrlArray[i], urlArray[i]);
             }
         }
 
         return variableMap;
     }
 
-    public String generateLongUrl(String receivedUrl,UsedUrl usedUrl){
-        String longUrl=usedUrl.getLongUrl();
-        Map<String,String> variableMap  = getVariablesFromRecievedUrl(usedUrl,receivedUrl);
+    public String generateLongUrl(String receivedUrl, UsedUrl usedUrl) {
+        String longUrl = usedUrl.getLongUrl();
+        Map<String, String> variableMap = getVariablesFromRecievedUrl(usedUrl, receivedUrl);
         LOGGER.info("variable length :" + variableMap.size());
-        String newUrl=longUrl;
+        String newUrl = longUrl;
 
-        for (Map.Entry<String,String> entry : variableMap.entrySet())
-        {
-            LOGGER.info(entry.getKey() +" "+entry.getValue());
-             newUrl = newUrl.replace(entry.getKey(),entry.getValue());
+        for (Map.Entry<String, String> entry : variableMap.entrySet()) {
+            LOGGER.info(entry.getKey() + " " + entry.getValue());
+            newUrl = newUrl.replace(entry.getKey(), entry.getValue());
         }
-        LOGGER.info("generate long url: "+ longUrl);
+        LOGGER.info("generate long url: " + longUrl);
         return newUrl;
     }
 
-    public Integer getHits(String url) {
-        return usedUrlDao.getHits(url).get(0).getHits();
+    public Integer getHits(String url) throws Exception {
+        List<UsedUrl> usedUrlList = usedUrlDao.getHits(url);
+        if (usedUrlList.size() == 0)
+            throw new Exception("Url not found");
+
+        return usedUrlList.get(0).getHits();
     }
 }

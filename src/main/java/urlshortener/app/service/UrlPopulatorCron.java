@@ -47,8 +47,8 @@ public class UrlPopulatorCron {
         List<UnusedShortUrl> unusedShortUrls = unusedUrlDAO.geLastUnsedShortUrl();
         Integer lastID = unusedShortUrls.get(0).getId();
         LongStream.range(1, 10).forEach(x -> {
-            String uniqueID = IDConverter.INSTANCE.createUniqueID(lastID + x);
-            unusedUrlDAO.insertUnusedShortUrl(new UnusedShortUrl(  uniqueID));
+            String uniqueID = IDConverter.INSTANCE.createUniqueID(lastID + x + 14776336);
+            unusedUrlDAO.insertUnusedShortUrl(new UnusedShortUrl(uniqueID));
         });
 
 

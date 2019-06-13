@@ -64,8 +64,8 @@ public class URLController {
     }
 
     @RequestMapping(value = "/c", method = RequestMethod.POST)
-    public RedirectView redirectCustomUrl(@RequestBody @Valid final RedirectUrl redirectUrl,HttpServletRequest request) throws Exception {
-        LOGGER.info("Received url to redirect: "+ redirectUrl.getUrl());
+    public RedirectView redirectCustomUrl(@RequestBody @Valid final RedirectUrl redirectUrl, HttpServletRequest request) throws Exception {
+        LOGGER.info("Received url to redirect: " + redirectUrl.getUrl());
         String redirectUrlString = urlConverterService.getCustomLongURL(redirectUrl.getUrl());
         LOGGER.info("Original URL: " + redirectUrlString);
         RedirectView redirectView = new RedirectView();
@@ -74,9 +74,9 @@ public class URLController {
     }
 
     @RequestMapping(value = "/analysis", method = RequestMethod.POST)
-    public Integer analyseUrl(@RequestBody @Valid final RedirectUrl redirectUrl,HttpServletRequest request) throws Exception {
-        LOGGER.info("Received url to analyse: "+ redirectUrl.getUrl());
-        Integer hits= urlConverterService.getHits(redirectUrl.getUrl());
+    public Integer analyseUrl(@RequestBody @Valid final RedirectUrl redirectUrl, HttpServletRequest request) throws Exception {
+        LOGGER.info("Received url to analyse: " + redirectUrl.getUrl());
+        Integer hits = urlConverterService.getHits(redirectUrl.getUrl());
         return hits;
     }
 }
@@ -119,6 +119,7 @@ class ShortenRequest {
         return simpleDateFormat.parse(expiryDate);
     }
 }
+
 class RedirectUrl {
     private String url;
 
@@ -128,7 +129,7 @@ class RedirectUrl {
     }
 
     @JsonCreator
-    public void  redirectUrl(@JsonProperty("url") String url) {
+    public void redirectUrl(@JsonProperty("url") String url) {
         this.url = url;
     }
 

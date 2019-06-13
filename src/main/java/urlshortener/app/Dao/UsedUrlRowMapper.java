@@ -1,11 +1,11 @@
 package urlshortener.app.Dao;
 
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.springframework.jdbc.core.RowMapper;
 import urlshortener.app.model.UsedUrl;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 public class UsedUrlRowMapper implements RowMapper<UsedUrl> {

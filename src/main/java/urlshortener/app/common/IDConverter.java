@@ -1,7 +1,6 @@
 package urlshortener.app.common;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class IDConverter {
         }
         for (int i = 26; i < 52; ++i) {
             char c = 'A';
-            c += (i-26);
+            c += (i - 26);
             indexToCharTable.add(c);
         }
         for (int i = 52; i < 62; ++i) {
@@ -38,7 +37,7 @@ public class IDConverter {
     public static String createUniqueID(Long id) {
         List<Integer> base62ID = convertBase10ToBase62ID(id);
         StringBuilder uniqueURLID = new StringBuilder();
-        for (int digit: base62ID) {
+        for (int digit : base62ID) {
             uniqueURLID.append(indexToCharTable.get(digit));
         }
         return uniqueURLID.toString();
@@ -46,8 +45,8 @@ public class IDConverter {
 
     private static List<Integer> convertBase10ToBase62ID(Long id) {
         List<Integer> digits = new LinkedList<>();
-        while(id > 0) {
-            int remainder = (int)(id % 62);
+        while (id > 0) {
+            int remainder = (int) (id % 62);
             ((LinkedList<Integer>) digits).addFirst(remainder);
             id /= 62;
         }

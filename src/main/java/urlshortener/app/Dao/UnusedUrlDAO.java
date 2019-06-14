@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import urlshortener.app.model.UnusedShortUrl;
 
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class UnusedUrlDAO {
     }
 
 
+    @Transactional
     public List<UnusedShortUrl> getRandomUnsedShortUrl() {
         final String sql = "select * from unused_short_url  order by RANDOM() LIMIT 1";
         SqlParameterSource param = new MapSqlParameterSource();
@@ -47,7 +49,7 @@ public class UnusedUrlDAO {
         return template.query(sql, param, new UnusedUrlRowMapper());
     }
 
-
+    @Transactional
     public void deleteUnusedUrl(UnusedShortUrl unusedShortUrl) {
         final String sql = "delete from unused_short_url where id=:id";
         Map<String, Object> map = new HashMap<>();

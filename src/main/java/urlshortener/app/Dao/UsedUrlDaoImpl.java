@@ -57,9 +57,8 @@ public class UsedUrlDaoImpl implements UserUrlDAO {
     }
 
     @Override
-    @Cacheable(value = "urls")
     public List<UsedUrl> getUsedUrlByShortUrl(UsedUrl usedUrl) {
-        final String sql = "select * from used_url  where short_url=:short_url and expiry_date > now()";
+        final String sql = "select * from used_url  where short_url=:short_url and expiry_date > now() and iscustom = ine false";
         SqlParameterSource param = new MapSqlParameterSource()
                 .addValue("short_url", usedUrl.getShortUrl());
         return template.query(sql, param, new UsedUrlRowMapper());
@@ -83,7 +82,6 @@ public class UsedUrlDaoImpl implements UserUrlDAO {
     }
 
     @Override
-    @Cacheable(value = "urls")
     public List<UsedUrl> getAllExpiredUsedIUrl() {
         final String sql = "select * from used_url where expiry_date < now() and iscustom = false";
         return template.query(sql, new UsedUrlRowMapper());
@@ -91,14 +89,12 @@ public class UsedUrlDaoImpl implements UserUrlDAO {
     }
 
     @Override
-    @Cacheable(value = "urls")
     public List<UsedUrl> getAllCustomUrls() {
         final String sql = "select * from used_url where expiry_date > now() and iscustom = true";
         return template.query(sql, new UsedUrlRowMapper());
     }
 
     @Override
-    @Cacheable(value = "urls")
     public List<UsedUrl> getHits(String shortUrl) {
         final String sql = "select * from used_url where expiry_date > now() and short_url=:short_url";
         SqlParameterSource param = new MapSqlParameterSource()

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import urlshortener.app.Dao.UnusedUrlDAO;
 import urlshortener.app.Dao.UsedUrlDaoImpl;
 import urlshortener.app.model.UnusedShortUrl;
@@ -27,6 +28,7 @@ public class URLConverterService {
 
     }
 
+    @Transactional
     public String shortenURL(String longUrl, Date expiryDate) {
         LOGGER.info("Shortening {}", longUrl);
 
@@ -47,7 +49,7 @@ public class URLConverterService {
 
         UsedUrl usedUrl = new UsedUrl();
         usedUrl.setExpiryDate(expiryDate);
-        usedUrl.setHits(1);
+        usedUrl.setHits(0);
         usedUrl.setShortUrl(customUrl);
         usedUrl.setLongUrl(longUrl);
         usedUrl.setCustom(true);
@@ -55,6 +57,7 @@ public class URLConverterService {
         return customUrl;
     }
 
+    @Transactional
     public String getLongURLFromID(String uniqueID) throws Exception {
         UsedUrl usedUrl = new UsedUrl();
         usedUrl.setShortUrl(uniqueID);
@@ -135,6 +138,7 @@ public class URLConverterService {
 
     public Integer getHits(String url) throws Exception {
         List<UsedUrl> usedUrlList = usedUrlDao.getHits(url);
+        LOGGER.info(usedUrlList.toString());
         if (usedUrlList.size() == 0)
             throw new Exception("Url not found");
 

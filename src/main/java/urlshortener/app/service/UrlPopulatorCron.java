@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import urlshortener.app.Dao.UnusedUrlDAO;
 import urlshortener.app.Dao.UsedUrlDaoImpl;
 import urlshortener.app.common.IDConverter;
@@ -42,6 +43,7 @@ public class UrlPopulatorCron {
     }
 
     @Scheduled(cron = "* * * ? * *")
+    @Transactional
     public void populateNewShortUrls() {
         logger.info("Populate Cron Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now()));
         List<UnusedShortUrl> unusedShortUrls = unusedUrlDAO.geLastUnsedShortUrl();
